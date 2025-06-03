@@ -1,0 +1,2 @@
+# hamming_code_naive_cpp
+hamming_code_naive_cpp
