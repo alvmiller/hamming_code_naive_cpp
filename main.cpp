@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string.h>
 #include <stdint.h>
@@ -100,7 +101,7 @@ public:
     void print_value(const std::string &name, const uint8_t val[], size_t val_size_bytes) {
         std::cout << name << "(" << val_size_bytes << ")" << ": ";
         for (size_t i = 0; i < val_size_bytes; ++i) {
-            std::cout << std::hex << std::uppercase << (unsigned)val[i] << " ";
+            std::cout << std::hex << std::uppercase << static_cast<unsigned>(val[i]) << " ";
         }
         std::cout << std::endl;
     }
