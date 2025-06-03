@@ -1,21 +1,14 @@
-/******************************************************************************
-
-                              Online C++ Compiler.
-               Code, Compile, Run and Debug C++ program online.
-Write your code in this editor and press "Run" button to compile and execute it.
-
-*******************************************************************************/
-
 #include <iostream>
 #include <string.h>
 #include <stdint.h>
 #include <limits.h>
 #include <bitset>
 #include <cassert>
+#include <iomanip>
 
-class Hamming_Code final {
+class
+Hamming_Code final {
 private:
-
     //default constructor
     Hamming_Code() = delete;
     //copy constructor
@@ -30,7 +23,6 @@ private:
     ~Hamming_Code() = delete;
 
 public:
-
     static inline
     int get_bit(const void *in, size_t n) {
         return (((const uint8_t*)in)[n / CHAR_BIT] & (1 << (n % CHAR_BIT))) != 0;
@@ -53,7 +45,7 @@ public:
     static inline
     size_t encode(void *out, const void *in, size_t in_bits) {
         size_t i, j, k;
-        unsigned s = 0;
+        size_t s = 0;
 
         for (i = j = 0; j < in_bits; ++i) {
             if ((i + 1) & i) {
@@ -72,9 +64,9 @@ public:
     }
 
     static inline
-    size_t decode(void *out, const void *in, size_t in_bits, unsigned *out_syndrome) {
+    size_t decode(void *out, const void *in, size_t in_bits, size_t *out_syndrome) {
         size_t i, j;
-        unsigned s = 0;
+        size_t s = 0;
 
         for (i = j = 0; i < in_bits; ++i) {
             if (get_bit(in, i)) {
@@ -92,17 +84,25 @@ public:
 
     static inline
     size_t decode_and_fix(void *out, const void *in, size_t in_bits) {
-        unsigned s;
+        size_t s;
+
         size_t out_bits = decode(out, in, in_bits, &s);
-
         if (s && s <= in_bits && (s & (s - 1))) {
-            unsigned k;
-
+            size_t k;
             for (k = 0; 1u << k < s; ++k);
             flip_bit(out, s - k - 1);
         }
 
         return out_bits;
+    }
+
+    static inline
+    void print_value(const std::string &name, const uint8_t val[], size_t val_size_bytes) {
+        std::cout << name << "(" << val_size_bytes << ")" << ": ";
+        for (size_t i = 0; i < val_size_bytes; ++i) {
+            std::cout << std::hex << std::uppercase << (unsigned)val[i] << " ";
+        }
+        std::cout << std::endl;
     }
 };
 
@@ -111,11 +111,16 @@ int main()
     uint16_t a = 0x1234;
     std::cout << "a = " << std::bitset<sizeof(a) * CHAR_BIT>(a) << std::endl;
 
-    char msg[4] = "app";
-    char encoded[5] = {};
-    char decoded[4] = {};
-    unsigned s;
-    size_t i;
+    uint8_t msg[4] = {1, 2, 3, 4};
+    uint8_t encoded[5] = {};
+    uint8_t decoded[4] = {};
+    size_t s = -1;
+    size_t i = 0;
+
+    std::cout << std::endl << "Before" << std::endl;
+    Hamming_Code::print_value("msg", msg, sizeof(msg));
+    Hamming_Code::print_value("encoded", encoded, sizeof(encoded));
+    Hamming_Code::print_value("decoded", decoded, sizeof(decoded));
 
     size_t encoded_bits = Hamming_Code::encode(encoded, msg, sizeof(msg) * CHAR_BIT);
     size_t decoded_bits = Hamming_Code::decode(decoded, encoded, encoded_bits, &s);
@@ -123,6 +128,12 @@ int main()
     assert(encoded_bits == sizeof(msg) * CHAR_BIT + 6);
     assert(decoded_bits == sizeof(msg) * CHAR_BIT);
     assert(memcmp(msg, decoded, sizeof(msg)) == 0);
+
+    std::cout << std::endl << "After" << std::endl;
+    Hamming_Code::print_value("msg", msg, sizeof(msg));
+    Hamming_Code::print_value("encoded", encoded, sizeof(encoded));
+    Hamming_Code::print_value("decoded", decoded, sizeof(decoded));
+    std::cout << std::endl;
 
     for (i = 0; i < encoded_bits; ++i) {
         Hamming_Code::flip_bit(encoded, i);
